@@ -1,0 +1,222 @@
+/* ====== BASE ====== */
+
+body {
+  font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, Arial, sans-serif;
+  margin: 0;
+  padding: 0;
+
+  /* 👇 ΑΠΑΛΟ GRADIENT BACKGROUND */
+  background: linear-gradient(
+    180deg,
+    #eef3fa 0%,
+    #e5ecf6 40%,
+    #dde6f2 100%
+  );
+
+  color: #1f2933;
+}
+
+
+h1 {
+  text-align: center;
+  font-size: 24px;
+  margin: 16px 0 8px;
+  font-weight: 500;
+}
+
+h2 {
+  font-size: 18px;
+  margin: 12px 0 8px;
+  font-weight: 500;
+  color: #374151;
+}
+
+/* ====== TABS ====== */
+
+.tabs {
+  display: flex;
+  justify-content: center;
+  gap: 8px;
+  margin: 12px;
+}
+
+.tabs button {
+  padding: 10px 16px;
+  border-radius: 8px;
+  border: 1px solid #c7d2e1;
+  background: #dde6f2;   /* 👈 απαλό μπλε */
+  color: #334155;
+  cursor: pointer;
+  font-size: 14px;
+}
+
+.tabs button.active {
+  background: #4f6fad;
+  color: white;
+  border-color: #4f6fad;
+}
+
+/* ====== CONTENT CARD ====== */
+
+.tab-content {
+  background: #f2f5fa;   /* 👈 ΟΧΙ άσπρο */
+  margin: 12px auto;
+  padding: 16px;
+  border-radius: 10px;
+  max-width: 700px;
+  box-shadow: 0 2px 6px rgba(0, 0, 0, 0.04);
+}
+
+/* ====== FORMS ====== */
+
+.create-form,
+.search-form {
+  display: flex;
+  flex-direction: column;
+  gap: 12px;
+}
+
+.create-form label,
+.search-form label {
+  font-size: 13px;
+  color: #4b5563;
+  display: flex;
+  flex-direction: column;
+  gap: 6px;
+}
+
+.create-form input,
+.create-form select,
+.search-form input,
+.search-form select {
+  padding: 10px 12px;
+  font-size: 15px;
+  border-radius: 6px;
+  border: 1px solid #c7d2e1;
+  outline: none;
+  background: #e6ecf5;   /* 👈 ΟΧΙ άσπρο */
+  color: #1f2933;
+}
+
+.create-form input:focus,
+.create-form select:focus,
+.search-form input:focus,
+.search-form select:focus {
+  border-color: #4f6fad;
+  background: #edf2fa;
+}
+
+/* ====== BUTTONS ====== */
+
+.create-form button,
+.search-form button {
+  margin-top: 8px;
+  padding: 12px;
+  font-size: 15px;
+  font-weight: 500;
+  border-radius: 8px;
+  border: none;
+  background: #4f6fad;
+  color: white;
+  cursor: pointer;
+}
+
+.create-form button:hover,
+.search-form button:hover {
+  opacity: 0.9;
+}
+
+/* ====== SEARCH MODE ====== */
+
+.mode-selector {
+  display: flex;
+  gap: 16px;
+  margin: 8px 0;
+}
+
+.custom-dates {
+  display: flex;
+  gap: 12px;
+}
+
+/* ====== LIST ====== */
+
+ul {
+  list-style: none;
+  padding: 0;
+  margin: 12px 0;
+}
+
+li {
+  padding: 10px 6px;
+  border-bottom: 1px solid #d6deea;
+  font-size: 14px;
+}
+
+li:last-child {
+  border-bottom: none;
+}
+
+.expense-amount {
+  color: #b91c1c;
+  font-weight: 500;
+}
+
+.income-amount {
+  color: #047857;
+  font-weight: 500;
+}
+
+.expense-badge {
+  background: #f5cfcf;
+  color: #7f1d1d;
+  padding: 3px 8px;
+  border-radius: 999px;
+  font-size: 12px;
+}
+
+.income-badge {
+  background: #cdeede;
+  color: #065f46;
+  padding: 3px 8px;
+  border-radius: 999px;
+  font-size: 12px;
+}
+
+/* ====== TOTALS ====== */
+
+.tab-content ul li {
+  font-size: 17px;
+  font-weight: 500;
+}
+
+/* ====== MOBILE ====== */
+
+@media (max-width: 600px) {
+  h1 {
+    font-size: 20px;
+  }
+
+  .tabs {
+    flex-direction: column;
+  }
+
+  .tabs button {
+    width: 100%;
+  }
+
+  .custom-dates {
+    flex-direction: column;
+  }
+
+  .mode-selector {
+    flex-direction: column;
+    gap: 10px;
+  }
+
+  .create-form button,
+  .search-form button {
+    font-size: 16px;
+    padding: 14px;
+  }
+}
