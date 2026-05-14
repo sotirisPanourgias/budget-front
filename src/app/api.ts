@@ -32,8 +32,8 @@ export interface SearchDto {
   providedIn: 'root'
 })
 export class ApiService {
-//   private baseUrl = 'https://budget-production-e72e.up.railway.app/transactions'; // άλλαξέ το αν χρειάζεται
-  private baseUrl = 'http://localhost:8080/transactions'
+   private baseUrl = 'https://budget-production-e72e.up.railway.app/transactions'; // άλλαξέ το αν χρειάζεται
+  // private baseUrl = 'http://localhost:8080/transactions'
 
   constructor(private http: HttpClient) {}
 
