@@ -32,7 +32,8 @@ export interface SearchDto {
   providedIn: 'root'
 })
 export class ApiService {
-  private baseUrl = 'https://budget-production-e72e.up.railway.app/transactions'; // άλλαξέ το αν χρειάζεται
+//   private baseUrl = 'https://budget-production-e72e.up.railway.app/transactions'; // άλλαξέ το αν χρειάζεται
+  private baseUrl = 'http://localhost:8080/transactions'
 
   constructor(private http: HttpClient) {}
 
@@ -53,6 +54,9 @@ export class ApiService {
       `${this.baseUrl}/custom/user`,
       search
     );
+  }
+  deleteTransaction(id: number) {
+    return this.http.delete(`${this.baseUrl}/by-id/${id}`);
   }
   // ✅ Totals
   getTransactionSum(): Observable<number> {
