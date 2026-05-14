@@ -372,15 +372,6 @@
 }
 
 @media (max-width: 620px) {
-  .tabs {
-    flex-direction: column;
-    align-items: stretch;
-  }
-
-  .tabs button {
-    width: 100%;
-  }
-
   .hero-card {
     width: 100%;
   }
