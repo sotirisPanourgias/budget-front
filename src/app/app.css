@@ -393,13 +393,90 @@
   .transaction-actions {
     justify-content: flex-start;
   }
+
   .create-form input,
-  .create-form select {
+  .create-form select,
+  .search-form input,
+  .search-form select {
     font-size: 16px;
     -webkit-appearance: none;
   }
 
-  .create-form input[type="date"] {
+  .create-form input[type="date"],
+  .search-form input[type="date"] {
     width: 100%;
+  }
+
+  .tab-content {
+    padding: 16px;
+  }
+}
+
+@media (max-width: 480px) {
+  :host {
+    padding: 16px 12px 24px;
+  }
+
+  .app-shell {
+    width: 100%;
+  }
+
+  .hero-card {
+    min-width: 100%;
+    padding: 16px 18px;
+  }
+
+  .hero-card-value {
+    font-size: 1.75rem;
+  }
+
+  .tabs button {
+    width: 56px;
+    height: 56px;
+    font-size: 1.25rem;
+  }
+
+  .tab-content {
+    padding: 12px;
+    border-radius: 20px;
+    margin-bottom: 12px;
+  }
+
+  .panel {
+    gap: 12px;
+  }
+
+  .input-row,
+  .custom-dates {
+    gap: 12px;
+  }
+
+  .create-form input,
+  .create-form select,
+  .search-form input,
+  .search-form select {
+    padding: 12px 14px;
+    border-radius: 12px;
+  }
+
+  .icon-only {
+    width: 32px;
+    height: 32px;
+    border-radius: 10px;
+    font-size: 0.9rem;
+  }
+
+  .primary {
+    width: 56px;
+    height: 56px;
+    font-size: 1.4rem;
+  }
+
+  .transaction-item {
+    padding: 14px;
+  }
+
+  .totals-list li {
+    padding: 12px 14px;
   }
 }
