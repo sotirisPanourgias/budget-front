@@ -393,4 +393,13 @@
   .transaction-actions {
     justify-content: flex-start;
   }
+  .create-form input,
+  .create-form select {
+    font-size: 16px;
+    -webkit-appearance: none;
+  }
+
+  .create-form input[type="date"] {
+    width: 100%;
+  }
 }
