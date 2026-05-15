@@ -33,8 +33,8 @@ export interface AuthResponse {
   providedIn: 'root'
 })
 export class AuthService {
-  //private baseUrl = 'https://budget-production-e72e.up.railway.app/auth';
-   private baseUrl = 'http://localhost:8080/auth';
+  private baseUrl = 'https://budget-production-e72e.up.railway.app/auth';
+   
   
   private tokenKey = 'access_token';
   private isAuthenticated$ = new BehaviorSubject<boolean>(this.hasToken());
