@@ -48,9 +48,8 @@ export interface PageResponse<T> {
   providedIn: 'root'
 })
 export class ApiService {
-  // private baseUrl = 'https://budget-production-e72e.up.railway.app/transactions'; // άλλαξέ το αν χρειάζεται
-   private baseUrl = 'http://localhost:8080/transactions';
-   private userUrl = 'http://localhost:8080/users';
+   private baseUrl = 'https://budget-production-e72e.up.railway.app/'; // άλλαξέ το αν χρειάζεται
+   
 
   constructor(private http: HttpClient, private authService: AuthService) {}
 
@@ -63,7 +62,7 @@ export class ApiService {
 
   // ➕ Δημιουργία συναλλαγής
   createTransaction(tx: NewTransaction): Observable<Transaction> {
-    return this.http.post<Transaction>(`${this.baseUrl}`, tx, this.getAuthHeaders());
+    return this.http.post<Transaction>(`${this.baseUrl}/transactions`, tx, this.getAuthHeaders());
   }
 
   // 📅 Φόρτωση ΜΗΝΙΑΙΩΝ συναλλαγών ανά user
@@ -74,7 +73,7 @@ export class ApiService {
   ): Observable<PageResponse<Transaction>> {
 
     return this.http.post<PageResponse<Transaction>>(
-      `${this.baseUrl}/monthly/user?page=${page}&size=${size}`,
+      `${this.baseUrl}/transactions/monthly/user?page=${page}&size=${size}`,
       description ?? null,
       this.getAuthHeaders()
     );
@@ -88,30 +87,30 @@ export class ApiService {
   ): Observable<PageResponse<Transaction>> {
 
     return this.http.post<PageResponse<Transaction>>(
-      `${this.baseUrl}/custom/user?page=${page}&size=${size}`,
+      `${this.baseUrl}/transactions/custom/user?page=${page}&size=${size}`,
       search,
       this.getAuthHeaders()
     );
   }
 
   deleteTransaction(id: number) {
-    return this.http.delete(`${this.baseUrl}/by-id/${id}`, this.getAuthHeaders());
+    return this.http.delete(`${this.baseUrl}/transactions/by-id/${id}`, this.getAuthHeaders());
   }
 
   // ✅ Totals
   getTransactionSum(): Observable<number> {
-    return this.http.get<number>(`${this.baseUrl}/sum`, this.getAuthHeaders());
+    return this.http.get<number>(`${this.baseUrl}/transactions/sum`, this.getAuthHeaders());
   }
 
   getTransactionSumExpenses(): Observable<number> {
-    return this.http.get<number>(`${this.baseUrl}/sum/expenses`, this.getAuthHeaders());
+    return this.http.get<number>(`${this.baseUrl}/transactions/sum/expenses`, this.getAuthHeaders());
   }
 
   getTransactionSumIncome(): Observable<number> {
-    return this.http.get<number>(`${this.baseUrl}/sum/income`, this.getAuthHeaders());
+    return this.http.get<number>(`${this.baseUrl}/transactions/sum/income`, this.getAuthHeaders());
   }
   changePassword(payload: ChangePasswordRequest): Observable<void> {
-      return this.http.post<void>(`${this.userUrl}/change-password`, payload, this.getAuthHeaders());
+      return this.http.post<void>(`${this.baseUrl}/users/change-password`, payload, this.getAuthHeaders());
     }
 
 }
