@@ -116,6 +116,8 @@ import { AuthService, LoginRequest, RegisterRequest } from './auth.service';
     .auth-card {
       width: 100%;
       max-width: 400px;
+      box-sizing: border-box;
+      min-width: 0;
       background: rgba(255, 255, 255, 0.12);
       border: 1px solid rgba(255, 255, 255, 0.12);
       backdrop-filter: blur(16px);
@@ -232,6 +234,8 @@ import { AuthService, LoginRequest, RegisterRequest } from './auth.service';
     @media (max-width: 480px) {
       .auth-card {
         padding: 24px 16px;
+        width: 100%;
+        box-sizing: border-box;
       }
 
       .form-group input {
