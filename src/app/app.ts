@@ -1,19 +1,29 @@
 import { Component, signal } from '@angular/core';
 import { CommonModule, NgFor, DatePipe } from '@angular/common';
-import { HttpClientModule } from '@angular/common/http';
 import { FormsModule } from '@angular/forms';
 import { ChangeDetectorRef } from '@angular/core';
+import { Router } from '@angular/router';
 import { ApiService, Transaction, NewTransaction, SearchDto } from './api';
+import { AuthService } from './auth.service';
 
-type TabType = 'create' | 'search' | 'totals';
+type TabType = 'create' | 'search' | 'profile' | 'totals';
 type SearchMode = 'monthly' | 'custom';
 
 @Component({
   selector: 'app-root',
   standalone: true,
-  imports: [CommonModule, HttpClientModule, NgFor, DatePipe, FormsModule],
+  imports: [CommonModule, NgFor, DatePipe, FormsModule],
   template: `
     <div class="app-shell">
+      <header class="app-header">
+        <h1>{{ title() }}</h1>
+        <div class="header-actions">
+          <button class="profile-btn" type="button" (click)="switchTab('profile')" [class.active]="activeTab() === 'profile'">
+            👤 Προφίλ
+          </button>
+          <button class="logout-btn" (click)="logout()">Αποσύνδεση</button>
+        </div>
+      </header>
      <!--
       <header class="hero">
         <div class="hero-card">
@@ -86,25 +96,40 @@ type SearchMode = 'monthly' | 'custom';
         <section class="panel">
           <div class="search-form">
             <div class="mode-selector">
-              <label>
+              <label class="mode-chip" [class.active]="searchMode === 'monthly'">
                 <input
                   type="radio"
                   name="mode"
                   value="monthly"
                   [(ngModel)]="searchMode" />
-                <span class="icon-only">⏱</span>
-                <span class="sr-only">This Month</span>
+                <span class="mode-icon">⏱</span>
+                <span>ΜΗΝΙΑΙΑ</span>
               </label>
 
-              <label>
+              <label class="mode-chip" [class.active]="searchMode === 'custom'">
                 <input
                   type="radio"
                   name="mode"
                   value="custom"
                   [(ngModel)]="searchMode" />
-                <span class="icon-only">📅</span>
-                <span class="sr-only">Custom Range</span>
+                <span class="mode-icon">📅</span>
+                <span>ΑΠΟ - ΕΩΣ</span>
               </label>
+            </div>
+
+            <div class="search-actions">
+              <div class="description-input">
+                <label>
+                  <span class="sr-only">Description filter</span>
+                  <input
+                    type="text"
+                    [(ngModel)]="descriptionFilter"
+                    placeholder="Φίλτρο περιγραφής"
+                    aria-label="Description filter" />
+                </label>
+              </div>
+
+              <button class="primary" (click)="runSearch()">🔎</button>
             </div>
 
             <div *ngIf="searchMode === 'custom'" class="custom-dates">
@@ -118,8 +143,6 @@ type SearchMode = 'monthly' | 'custom';
                 <input type="date" [(ngModel)]="searchEndDate" aria-label="End Date" />
               </label>
             </div>
-
-            <button class="primary" (click)="runSearch()">🔎</button>
           </div>
 
           <div class="results">
@@ -139,10 +162,64 @@ type SearchMode = 'monthly' | 'custom';
                   <span class="type-badge" [class.expense-badge]="t.type === 'EXPENSE'" [class.income-badge]="t.type === 'INCOME'">
                     {{ t.type === 'EXPENSE' ? ' ΕΞΟΔΑ' : ' ΕΣΟΔΑ' }}
                   </span>
-                  <button class="delete-btn" (click)="deleteTransaction(t.id!)">Delete</button>
+                  <button class="delete-btn" (click)="deleteTransaction(t.id!)">Χ</button>
                 </div>
               </li>
             </ul>
+          </div>
+          <div class="pagination">
+            <button (click)="previousPage()" [disabled]="currentPage === 0">
+              Prev
+            </button>
+            <span>
+              Page {{currentPage + 1}} / {{totalPages}}
+            </span>
+            <button (click)="nextPage()" [disabled]="currentPage >= totalPages - 1">
+              Next
+            </button>
+            <select (change)="onPageSizeChange($event)" [value]="pageSize">
+              <option *ngFor="let size of pageSizeOptions" [value]="size">
+                {{ size }}
+              </option>
+            </select>
+          </div>
+        </section>
+      </div>
+
+      <div class="tab-content" *ngIf="activeTab() === 'profile'">
+        <section class="panel">
+          <div class="profile-form">
+            <h2>Αλλαγή Κωδικού</h2>
+
+            <label>
+              <span class="sr-only">Current password</span>
+              <input
+                type="password"
+                [(ngModel)]="currentPassword"
+                placeholder="Τρέχων κωδικός" />
+            </label>
+
+            <label>
+              <span class="sr-only">New password</span>
+              <input
+                type="password"
+                [(ngModel)]="newPassword"
+                placeholder="Νέος κωδικός" />
+            </label>
+
+            <label>
+              <span class="sr-only">Confirm password</span>
+              <input
+                type="password"
+                [(ngModel)]="confirmPassword"
+                placeholder="Επανάληψη νέου κωδικού" />
+            </label>
+
+            <button class="primary" (click)="changePassword()">Αλλαγή</button>
+
+            <div *ngIf="profileMessage" class="profile-message">
+              {{ profileMessage }}
+            </div>
           </div>
         </section>
       </div>
@@ -188,15 +265,27 @@ type SearchMode = 'monthly' | 'custom';
   styleUrls: ['./app.css']
 })
 export class App {
-  title = signal('Budget Tracker');
+  title = signal('My Budget Studio');
   activeTab = signal<TabType>('create');
   today = new Date().toISOString().slice(0, 10);
 
   transactions: Transaction[] = [];
+  currentPage = 0;
+  pageSize = 10;
 
+  totalPages = 0;
+  totalElements = 0;
+
+  pageSizeOptions = [5,10,20,50,100];
   searchMode: SearchMode = 'monthly';
   searchStartDate = this.today;
   searchEndDate = this.today;
+  descriptionFilter = '';
+
+  currentPassword = '';
+  newPassword = '';
+  confirmPassword = '';
+  profileMessage = '';
 
   totalAll = 0;
   totalExpenses = 0;
@@ -209,11 +298,22 @@ export class App {
     type: 'EXPENSE'
   };
 
-  constructor(private apiService: ApiService,private cdr: ChangeDetectorRef) {}
+  constructor(
+    private apiService: ApiService,
+    private authService: AuthService,
+    private router: Router,
+    private cdr: ChangeDetectorRef
+  ) {}
+
+  logout(): void {
+    this.authService.logout();
+    this.router.navigate(['/login']);
+  }
 
   switchTab(tab: TabType) {
     this.activeTab.set(tab);
   }
+  
 
   submitTransaction() {
     this.apiService.createTransaction(this.newTx).subscribe({
@@ -255,11 +355,48 @@ export class App {
       }
     });
   }
+
+  changePassword() {
+    if (!this.currentPassword || !this.newPassword || !this.confirmPassword) {
+      alert('Συμπλήρωσε όλα τα πεδία');
+      return;
+    }
+
+    if (this.newPassword !== this.confirmPassword) {
+      alert('Οι κωδικοί δεν ταιριάζουν');
+      return;
+    }
+
+    this.apiService.changePassword({
+      currentPassword: this.currentPassword,
+      newPassword: this.newPassword,
+      confirmPassword: this.confirmPassword
+    }).subscribe({
+      next: () => {
+        alert('Κωδικός αλλάχθηκε με επιτυχία. Θα γίνει αποσύνδεση.');
+        this.logout();
+        this.cdr.detectChanges();
+        
+      },
+      error: (err) => {
+        console.error('Change password error:', err);
+        this.profileMessage = 'Σφάλμα στην αλλαγή κωδικού. Δοκίμασε ξανά.';
+      }
+    });
+  }
+  
   runSearch() {
     this.transactions = [];
+    const description = this.descriptionFilter.trim() || undefined;
+
     if (this.searchMode === 'monthly') {
-      this.apiService.getMonthlyTransactionsByUserId().subscribe({
-        next: (data) => {this.transactions = data; this.cdr.detectChanges();},
+      this.apiService.getMonthlyTransactionsByUserId(description, this.currentPage, this.pageSize).subscribe({
+        next: (data) => {
+          this.transactions = data.content;
+          this.totalPages = data.totalPages;
+          this.totalElements = data.totalElements;
+          this.cdr.detectChanges();
+        },
         error: (err) => {
           console.error('Monthly search error:', err);
           alert('Search failed – δες console');
@@ -275,11 +412,19 @@ export class App {
 
     const payload: SearchDto = {
       startDate: this.searchStartDate,
-      endDate: this.searchEndDate
+      endDate: this.searchEndDate,
+      description
     };
 
     this.apiService.searchTransactionsCustom(payload).subscribe({
-      next: (data) => {this.transactions = data; this.cdr.detectChanges();},
+      next: (data) => {
+        this.transactions = data.content;
+
+        this.totalPages = data.totalPages;
+        this.totalElements = data.totalElements;
+
+        this.cdr.detectChanges();
+      },
       error: (err) => {
         console.error('Custom search error:', err);
         alert('Search failed – δες console');
@@ -310,5 +455,22 @@ export class App {
       },
       error: (err) => console.error('Error loading total income:', err)
     });
+  }
+  nextPage() {
+    if (this.currentPage < this.totalPages - 1) {
+      this.currentPage++;
+      this.runSearch();
+    }
+  }
+  previousPage() {
+    if (this.currentPage > 0) {
+      this.currentPage--;
+      this.runSearch();
+    }
+  }
+  onPageSizeChange(event: any) {
+    this.pageSize = Number(event.target.value);
+    this.currentPage = 0;
+    this.runSearch();
   }
 }

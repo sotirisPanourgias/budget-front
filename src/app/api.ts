@@ -1,6 +1,7 @@
 import { Injectable } from '@angular/core';
-import { HttpClient } from '@angular/common/http';
+import { HttpClient, HttpHeaders } from '@angular/common/http';
 import { Observable } from 'rxjs';
+import { AuthService } from './auth.service';
 
 export interface User {
   id: number;
@@ -25,6 +26,21 @@ export interface NewTransaction {
 export interface SearchDto {
   startDate: string; // yyyy-MM-dd
   endDate: string;   // yyyy-MM-dd
+  description?: string;
+}
+export interface ChangePasswordRequest {
+  currentPassword: string;
+  newPassword: string;
+  confirmPassword: string;
+}
+export interface PageResponse<T> {
+  content: T[];
+  totalElements: number;
+  totalPages: number;
+  size: number;
+  number: number;
+  first: boolean;
+  last: boolean;
 }
 
 
@@ -32,43 +48,70 @@ export interface SearchDto {
   providedIn: 'root'
 })
 export class ApiService {
-   private baseUrl = 'https://budget-production-e72e.up.railway.app/transactions'; // άλλαξέ το αν χρειάζεται
-  // private baseUrl = 'http://localhost:8080/transactions'
+  // private baseUrl = 'https://budget-production-e72e.up.railway.app/transactions'; // άλλαξέ το αν χρειάζεται
+   private baseUrl = 'http://localhost:8080/transactions';
+   private userUrl = 'http://localhost:8080/users';
 
-  constructor(private http: HttpClient) {}
+  constructor(private http: HttpClient, private authService: AuthService) {}
+
+  private getAuthHeaders() {
+    const token = this.authService.getToken();
+    return token
+      ? { headers: new HttpHeaders({ Authorization: `Bearer ${token}` }) }
+      : {};
+  }
 
   // ➕ Δημιουργία συναλλαγής
   createTransaction(tx: NewTransaction): Observable<Transaction> {
-    return this.http.post<Transaction>(`${this.baseUrl}`, tx);
+    return this.http.post<Transaction>(`${this.baseUrl}`, tx, this.getAuthHeaders());
   }
 
   // 📅 Φόρτωση ΜΗΝΙΑΙΩΝ συναλλαγών ανά user
-  getMonthlyTransactionsByUserId(): Observable<Transaction[]> {
-    return this.http.get<Transaction[]>(
-      `${this.baseUrl}/monthly/user`
+  getMonthlyTransactionsByUserId(
+    description?: string,
+    page: number = 0,
+    size: number = 10
+  ): Observable<PageResponse<Transaction>> {
+
+    return this.http.post<PageResponse<Transaction>>(
+      `${this.baseUrl}/monthly/user?page=${page}&size=${size}`,
+      description ?? null,
+      this.getAuthHeaders()
     );
   }
+
   // 🔍 Custom search με date range
-  searchTransactionsCustom(search: SearchDto): Observable<Transaction[]> {
-    return this.http.post<Transaction[]>(
-      `${this.baseUrl}/custom/user`,
-      search
+  searchTransactionsCustom(
+    search: SearchDto,
+    page: number = 0,
+    size: number = 10
+  ): Observable<PageResponse<Transaction>> {
+
+    return this.http.post<PageResponse<Transaction>>(
+      `${this.baseUrl}/custom/user?page=${page}&size=${size}`,
+      search,
+      this.getAuthHeaders()
     );
   }
+
   deleteTransaction(id: number) {
-    return this.http.delete(`${this.baseUrl}/by-id/${id}`);
+    return this.http.delete(`${this.baseUrl}/by-id/${id}`, this.getAuthHeaders());
   }
+
   // ✅ Totals
   getTransactionSum(): Observable<number> {
-    return this.http.get<number>(`${this.baseUrl}/sum`);
+    return this.http.get<number>(`${this.baseUrl}/sum`, this.getAuthHeaders());
   }
 
   getTransactionSumExpenses(): Observable<number> {
-    return this.http.get<number>(`${this.baseUrl}/sum/expenses`);
+    return this.http.get<number>(`${this.baseUrl}/sum/expenses`, this.getAuthHeaders());
   }
 
   getTransactionSumIncome(): Observable<number> {
-    return this.http.get<number>(`${this.baseUrl}/sum/income`);
+    return this.http.get<number>(`${this.baseUrl}/sum/income`, this.getAuthHeaders());
   }
+  changePassword(payload: ChangePasswordRequest): Observable<void> {
+      return this.http.post<void>(`${this.userUrl}/change-password`, payload, this.getAuthHeaders());
+    }
 
 }
