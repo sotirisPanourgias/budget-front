@@ -48,7 +48,7 @@ export interface PageResponse<T> {
   providedIn: 'root'
 })
 export class ApiService {
-   private baseUrl = 'https://budget-production-e72e.up.railway.app/'; // άλλαξέ το αν χρειάζεται
+   private baseUrl = 'https://budget-production-e72e.up.railway.app'; // άλλαξέ το αν χρειάζεται
    
 
   constructor(private http: HttpClient, private authService: AuthService) {}
