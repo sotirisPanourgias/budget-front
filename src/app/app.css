@@ -75,6 +75,7 @@
   align-items: center;
   gap: 24px;
   margin-bottom: 24px;
+  flex-wrap: wrap;
 }
 .hero-card {
   min-width: 150px;
